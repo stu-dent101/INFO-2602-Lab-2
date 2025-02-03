@@ -25,11 +25,15 @@ def initialize():
   db.session.add(jane)
   db.session.add(john)
 
+  new_todo = bob.create_todo('walk the cat')
+  db.session.add(new_todo)
+
   db.session.commit()
 
   print(bob)
   print(jane)
   print(john)
+  print(bob, new_todo)
 
   print('database intialized')
 
@@ -113,8 +117,9 @@ def add_task(username, text):
   if not registered_user:
       print(f'{username} not found!')
       return
-  new_todo = Todo(text)
-  registered_user.todos.append(new_todo)
+  #new_todo = Todo(text)
+  #registered_user.todos.append(new_todo)
+  registered_user.create_todo(text)
   db.session.add(registered_user)
   db.session.commit()
   print("Todo added!")

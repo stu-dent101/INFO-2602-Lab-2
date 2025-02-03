@@ -18,11 +18,15 @@ class User(db.Model):
   #categories = db.relationship('Category', backref='user', lazy= 'joined') #to link Category and Todo tables together
   categories = db.relationship('Category', lazy='joined', back_populates='user')
 
-
   def __init__(self, username, email, password):
     self.username = username
     self.email = email
     self.set_password(password)
+
+  def create_todo(self, text):
+    new_todo = Todo(text)
+    self.todos.append(new_todo)
+    return new_todo
 
   def set_password(self, password):
     """Create hashed password."""
@@ -31,7 +35,7 @@ class User(db.Model):
   def __repr__(self):
     return f'<User {self.id} {self.username} - {self.email}>'
   
-  
+  '''
   #"Research"
   def add_todo_category(self, todo_id, category_name):
         # Find the Todo by ID
@@ -53,6 +57,30 @@ class User(db.Model):
             db.session.commit()
 
         return True
+  '''
+  # Add method to User model in models.py
+  def add_todo_category(self, todo_id, category_text):
+      # Fetch the todo by id
+      todo = Todo.query.filter_by(id=todo_id, user_id=self.id).first()
+      # Make sure the todo exists and belongs to the current user
+      if not todo:
+          return False
+
+      # Check if category already exists for current user
+      category = Category.query.filter_by(text=category_text, user_id=self.id).first()
+      if not category:
+          # Create new category
+          category = Category(user_id=self.id, text=category_text)
+          db.session.add(category)
+          db.session.commit()
+
+      # Associate todo with the category if not already associated
+      if category not in todo.categories:
+          todo.categories.append(category)
+          db.session.add(todo)
+          db.session.commit()
+
+      return True
   
 #####################################################################################
 
@@ -63,7 +91,7 @@ class Todo(db.Model):
   text = db.Column(db.String(255), nullable=False)
   task_completed = db.Column(db.Boolean, default=False)
   #categories = db.relationship('Category', secondary='todo_category', back_populates='todos')
-
+  
   def toggle(self): # changed the status of task_completed from false to true and updates the database
     self.task_completed = not self.task_completed
     db.session.add(self)
