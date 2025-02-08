@@ -27,7 +27,7 @@ class User(db.Model):
     new_todo = Todo(text)
     self.todos.append(new_todo)
     return new_todo
-
+     
   def set_password(self, password):
     """Create hashed password."""
     self.password = generate_password_hash(password, method='scrypt')
@@ -35,29 +35,6 @@ class User(db.Model):
   def __repr__(self):
     return f'<User {self.id} {self.username} - {self.email}>'
   
-  '''
-  #"Research"
-  def add_todo_category(self, todo_id, category_name):
-        # Find the Todo by ID
-        todo = next((todo for todo in self.todos if todo.id == todo_id), None)
-        if not todo:
-            return False  # No Todo with this ID found for the user
-
-        # Check if the category already exists for this user
-        category = Category.query.filter_by(user_id=self.id, text=category_name).first()
-        if not category:
-            # Create a new category
-            category = Category(user_id=self.id, text=category_name)
-            db.session.add(category)
-            db.session.commit()
-
-        # Check if the category is already associated with the todo
-        if category not in todo.categories:
-            todo.categories.append(category)
-            db.session.commit()
-
-        return True
-  '''
   # Add method to User model in models.py
   def add_todo_category(self, todo_id, category_text):
       # Fetch the todo by id
@@ -68,11 +45,16 @@ class User(db.Model):
 
       # Check if category already exists for current user
       category = Category.query.filter_by(text=category_text, user_id=self.id).first()
+      if category:
+         print (f'You have already created the "{category_text}" category')
+
       if not category:
           # Create new category
           category = Category(user_id=self.id, text=category_text)
           db.session.add(category)
           db.session.commit()
+          print('Category added!')
+      
 
       # Associate todo with the category if not already associated
       if category not in todo.categories:

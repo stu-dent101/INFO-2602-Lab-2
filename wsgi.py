@@ -1,5 +1,5 @@
 import click, sys
-from models import db, User, Todo, Category
+from models import db, User, Todo, Category, TodoCategory
 from app import app
 from sqlalchemy.exc import IntegrityError
 
@@ -98,8 +98,8 @@ def delete_user(username):
   db.session.commit()
   print(f'{username} deleted')
 
-#flask get-todos
-@app.cli.command('get-todos')
+#flask get-user-todos
+@app.cli.command('get-user-todos')
 @click.argument('username', default='bob')
 def get_user_todos(username):
   registered_user = User.query.filter_by(username = username).first()
@@ -107,6 +107,12 @@ def get_user_todos(username):
       print(f'{username} not found!')
       return
   print(registered_user.todos)
+
+#flask get-all-todos
+@app.cli.command('get-all-todos')
+def get_all_todos():
+  todos = Todo.query.all()
+  print(todos)
 
 #flask add-todo e.g. flask add-todo jane "wash the clothes"
 @app.cli.command('add-todo')
@@ -157,7 +163,7 @@ def add_todo_category_command(username, todo_id, category):
     print(f'{username} has no todo id {todo_id}')
     return
 
-  print('Category added!')
+  #print('Category added!')
 
 # I also want to list the categories
 #flask get-categories
